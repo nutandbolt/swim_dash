@@ -6,6 +6,7 @@
 # https://stackoverflow.com/questions/68146256/convert-times-to-designated-time-format-and-apply-to-y-axis-of-plotly-graph
 import pandas as pd
 import streamlit as st
+import csv
 import plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -36,6 +37,7 @@ def strptime(s, time_fmt):
     except ValueError:
         return None
 
+sheet_id = '1MtzRZiacK93npe_i4AhJ5okC7RtKAo_3l2aWMdpHl7c'
 
 mapping = {
     'Pull Set 400 M': {
@@ -43,14 +45,16 @@ mapping = {
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
-        'yaxis_label': "MM:SS:sss"
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
     },
     'Endurance 500 M': {
         'url': "Endurance",
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
-        'yaxis_label': "MM:SS:sss"
+        'yaxis_label': "MM:SS:sss",
+        'header': 1
 
     },
     'Kick Set 200 M': {
@@ -58,7 +62,8 @@ mapping = {
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
-        'yaxis_label': "MM:SS:sss"
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
 
     },
     'Time Trial 100 M': {
@@ -66,7 +71,9 @@ mapping = {
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
-        'yaxis_label': "MM:SS:sss"
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
+
 
     },
     'Continuous Swim': {
@@ -74,7 +81,8 @@ mapping = {
         'fmt': "%H:%M:%S",
         'display_fmt': "{hours:02d}:{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'distance',
-        'yaxis_label': "H:MM:SS"
+        'yaxis_label': "H:MM:SS",
+        'header': 1
     },
     'Swim Broken 1000 M': {
         'url': "Swim%20Broken",
@@ -82,6 +90,8 @@ mapping = {
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
+        'header': 1
+
 
     },
     'Sprint 50 M': {
@@ -89,24 +99,30 @@ mapping = {
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
-        'yaxis_label': "MM:SS:sss"
+        'yaxis_label': "MM:SS:sss",
+        'header': 1
+
     }
 }
 
 
 def plot_workout(option):
-    sheet_id = "19dCvddKN-oeLdg-qb-p8SY1iqS2WxUJKJHCwomvJK5A"
+    # sheet_id = "1_Q7C3w_aCh9NErtnxLkDl1JYFlisPnDit09LvdcsLYg"#"19dCvddKN-oeLdg-qb-p8SY1iqS2WxUJKJHCwomvJK5A"
     sheet_name = mapping[option]['url']
+    header_rows = mapping[option]['header']
 
     url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     input_df = pd.read_csv(url).dropna(axis=1, how="all")
+    if 'NAME ' in input_df.columns:
+        input_df.rename(columns={'NAME ': 'NAME'}, inplace=True)
+    col_names = pd.read_csv(url).head(0)
     fig = go.Figure()
     for col in input_df.columns:
 
         try:
             temp = col.split(' ')[0]
-            distance = col.split(' ')[1]
-            date = dparser.parse(temp, fuzzy=True)
+            # distance = col.split(' ')[1]
+            date = dparser.parse(temp, dayfirst=True, fuzzy=True)
         except (ValueError, IndexError):
             pass
 
@@ -123,7 +139,7 @@ def plot_workout(option):
                               yaxis]
                 input_df[col] = yaxis_time
                 fig.add_trace(
-                    go.Bar(name=str(date.date()), x=input_df['NAME '], y=input_df.iloc[:, time_column_index + 1],
+                    go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df.iloc[:, time_column_index + 1],
                            text=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                            args=(mapping[option]['display_fmt'],)),
                            textposition='auto',
@@ -152,7 +168,7 @@ def plot_workout(option):
                               (hour=0, minute=0, second=0, microsecond=0) if time is not None else None for time in
                               yaxis]
                 input_df[col] = yaxis_time
-                fig.add_trace(go.Bar(name=str(date.date()), x=input_df['NAME '], y=input_df[col],
+                fig.add_trace(go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df[col],
                                      hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                                      args=(mapping[option]['display_fmt'],)),
 
@@ -186,14 +202,15 @@ def plot_workout(option):
                 )
 
     fig.update_layout(barmode='group')
-
+    fig.layout.xaxis.fixedrange = True
+    fig.layout.yaxis.fixedrange = True
     # fig.show()
     st.plotly_chart(fig)
 
 
 def plot_athlete(athlete):
     # # sheet_id = "1Sjy1nZ5pHgoayKb32b--74Mgtag_qewB5EF4trRKFPY"
-    sheet_id = "19dCvddKN-oeLdg-qb-p8SY1iqS2WxUJKJHCwomvJK5A"
+    # sheet_id = "19dCvddKN-oeLdg-qb-p8SY1iqS2WxUJKJHCwomvJK5A"
     # sheet_name = mapping[option]['url']
     #
     # url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
@@ -205,16 +222,19 @@ def plot_athlete(athlete):
     for workout in WORKOUTS:
 
         sheet_name = mapping[workout]['url']
+        header_row = mapping[workout]['header']
         url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         df = pd.read_csv(url).dropna(axis=1, how="all")
-        df_athlete = df.loc[df['NAME '] == athlete, :]
+        if 'NAME ' in df.columns:
+            df.rename(columns={'NAME ': 'NAME'}, inplace=True)
+        df_athlete = df.loc[df['NAME'] == athlete, :]
         x_vals = []
         y_vals = []
         for col in df_athlete.columns:
             try:
                 temp = col.split(' ')[0]
-                distance = col.split(' ')[1]
-                date = dparser.parse(temp, fuzzy=True)
+                # distance = col.split(' ')[1]
+                date = dparser.parse(temp, dayfirst=True, fuzzy=True)
             except (ValueError, IndexError):
                 pass
             else:
@@ -284,6 +304,8 @@ def plot_athlete(athlete):
         title_text=f'<b> SWIM DATA FOR  {athlete}</b>',
         title_font_color="black",
     )
+    fig2.layout.xaxis.fixedrange = True
+    fig2.layout.yaxis.fixedrange = True
 
     # fig2.show()
     st.plotly_chart(fig2)
@@ -294,7 +316,7 @@ WORKOUTS = ['Pull Set 400 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 1
 ATHLETES = ['AJAY', 'ASHWIN', 'ARUN B', 'DIVYA N', 'MEGHANA', 'TEJAS', 'PRASHANTH', 'PRADEEP', 'MUKUND', 'MAHATHI',
             'RAHUL']
 
-#
+
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group'))
 
@@ -304,3 +326,5 @@ if display_mode == 'Individual':
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
+# plot_workout(WORKOUTS[0])
+# plot_athlete(ATHLETES[0])
