@@ -6,6 +6,7 @@
 # https://stackoverflow.com/questions/68146256/convert-times-to-designated-time-format-and-apply-to-y-axis-of-plotly-graph
 import pandas as pd
 import streamlit as st
+import numpy as np
 import csv
 import plotly
 from plotly.subplots import make_subplots
@@ -116,6 +117,7 @@ def plot_workout(option):
         input_df.rename(columns={'NAME ': 'NAME'}, inplace=True)
     col_names = pd.read_csv(url).head(0)
     fig = go.Figure()
+    time_col = []
     for col in input_df.columns:
 
         try:
@@ -127,7 +129,7 @@ def plot_workout(option):
 
         else:
             time_column_index = input_df.columns.get_loc(col)
-
+            time_col.append(time_column_index)
             if mapping[option]['plot'] == 'distance':
                 fmt = mapping[option]['fmt']
                 yaxis = [strptime(str(time), fmt) for time in input_df[col]]
@@ -140,12 +142,10 @@ def plot_workout(option):
                 fig.add_trace(
                     go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df.iloc[:, time_column_index + 1],
                            text=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
-                                                                                      args=(
-                                                                                      mapping[option]['display_fmt'],)),
+                           args=(mapping[option]['display_fmt'],)),
                            textposition='auto',
                            hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
-                                                                                           args=(mapping[option][
-                                                                                                     'display_fmt'],)),
+                           args=(mapping[option]['display_fmt'],)),
                            ))
                 fig.update_layout(
                     showlegend=True,
@@ -171,39 +171,27 @@ def plot_workout(option):
                 input_df[col] = yaxis_time
                 fig.add_trace(go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df[col],
                                      hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
-                                                                                                     args=(
-                                                                                                     mapping[option][
-                                                                                                         'display_fmt'],)),
+                                     args=(mapping[option]['display_fmt'],)),))
 
-                                     ))
-
-                # ticks = pd.Series(range(input_df[col].dropna().values.astype('int64').min() - 10 ** 10,
-                #                         input_df[col].dropna().values.astype('int64').max() + 10 ** 10, 10 ** 10))
-                ticks = pd.Series(range(input_df[col].dropna().values.astype('int64').min() - 10 ** 10,
-                                        input_df[col].dropna().values.astype('int64').max()
-                                        + 3 * (10 ** 10), 2 * (10 ** 10)))
-                fig.update_layout(
-                    showlegend=True,
-                    title_text=f'<b> {option}   </b>',
-                    title_font_color="black",
-                    width=1000,
-                    height=600,
-                    yaxis={
-                        "title": f"Time [{mapping[option]['yaxis_label']}]",
-
-                        "range": [input_df[col].dropna().values.astype('int64').min() - 10 ** 10,
-                                  input_df[col].dropna().values.astype('int64').max() + 3 * (10 ** 10)],
-                        "tickmode": "array",
-                        "tickvals": ticks,
-                        "ticktext": ticks.apply(strfdelta, args=(mapping[option]['display_fmt'],))
-                    },
-                    # font=dict(
-                    #     family="Courier New, monospace",
-                    #     size=18,
-                    #     color="RebeccaPurple"
-                    # )
-                )
-
+    if mapping[option]['plot'] == 'time':
+        ticks = pd.Series(range((input_df.iloc[:, time_col].min()).view('int64').min()
+                                - 10 ** 10,
+                                input_df.iloc[:, time_col].values.astype('int64').max()
+                                + 10 ** 10,  3*(10 ** 10)))
+        fig.update_layout(
+            showlegend=True,
+            title_text=f'<b> {option}   </b>',
+            title_font_color="black",
+            width=1000,
+            height=600,
+            yaxis={
+                "title": f"Time [{mapping[option]['yaxis_label']}]",
+                "range": [(input_df.iloc[:, time_col].min()).view('int64').min() - 10 ** 10,
+                          input_df.iloc[:, time_col].values.astype('int64').max() + (10 ** 10)],
+                "tickmode": "array",
+                "tickvals": ticks,
+                "ticktext": ticks.apply(strfdelta, args=(mapping[option]['display_fmt'],))
+            })
     fig.update_layout(barmode='group')
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
@@ -233,6 +221,7 @@ def plot_athlete(athlete):
         df_athlete = df.loc[df['NAME'] == athlete, :]
         x_vals = []
         y_vals = []
+        time_col = []
         for col in df_athlete.columns:
             try:
                 temp = col.split(' ')[0]
@@ -244,6 +233,8 @@ def plot_athlete(athlete):
                 # x_vals.append(date)
                 # y_vals.append(df_athlete[col].values)
                 time_column_index = df_athlete.columns.get_loc(col)
+                time_col.append(time_column_index)
+
                 fmt = mapping[workout]['fmt']
                 yaxis = [strptime(str(time), fmt) for time in df_athlete[col]]
                 yaxis_time = [pd.Timestamp(year=1970, month=1, day=1, hour=int(time.hour), minute=int(time.minute),
@@ -260,12 +251,10 @@ def plot_athlete(athlete):
                         go.Bar(name=str(date.date()), x=[str(date.strftime("%d %b %y"))],
                                y=df_athlete.iloc[:, time_column_index + 1],
                                text=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
-                                                                                            args=(mapping[workout][
-                                                                                                      'display_fmt'],)),
+                               args=(mapping[workout]['display_fmt'],)),
                                textposition='auto',
                                hovertext=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
-                                                                                                 args=(mapping[workout][
-                                                                                                           'display_fmt'],))),
+                               args=(mapping[workout]['display_fmt'],))),
                         row=i, col=j)
 
                     fig2.update_yaxes(
@@ -282,32 +271,36 @@ def plot_athlete(athlete):
 
                 elif mapping[workout]['plot'] == 'time':
 
-                    ticks = pd.Series(range(df_athlete[col].dropna().values.astype('int64').min() - 10*(10 ** 10),
-                                            df_athlete[col].dropna().values.astype('int64').max() + 10*(10 ** 10),
-                                            4*(10 ** 10)))
                     fig2.add_trace(go.Bar(name=str(date.date()), x=[str(date.strftime("%d %b %y"))], y=df_athlete[col],
                                           text=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
                                           args=(mapping[workout]['display_fmt'],)),
                                           textposition='auto',
                                           hovertext=pd.Series(df_athlete[col].values.astype('int64')).
                                           apply(strfdelta, args=(mapping[workout]['display_fmt'],))), row=i, col=j)
-                    fig2.update_yaxes(
 
-                        range=[df_athlete[col].dropna().values.astype('int64').min() - 10*(10 ** 10),
-                               df_athlete[col].dropna().values.astype('int64').max() + 10 * (10 ** 10)],
-                        title=f"Time [{mapping[workout]['yaxis_label']}]",
-                        tickmode="array",
-                        tickvals=ticks,
-                        ticktext=ticks.apply(strfdelta, args=(mapping[workout]['display_fmt'],)),
-                        fixedrange=True,
-                        row=i, col=j
-                    )
-                    fig2.update_xaxes(
-                        fixedrange=True,
-                        row=i, col=j
-                    )
+        ticks = pd.Series(range(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').min()
+                                - 5 * (10 ** 10),
+                                df_athlete.iloc[:, time_col].dropna(axis=1).values.astype('int64').max()
+                                + 5 * (10 ** 10), 4 * (10 ** 10)))
 
-                    # fig2.update_xaxes(type='category')
+        if mapping[workout]['plot'] == 'time':
+            fig2.update_yaxes(
+
+                range=[df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').min()
+                       - 5 * (10 ** 10),
+                       df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').max()
+                       + 5 * (10 ** 10)],
+                title=f"Time [{mapping[workout]['yaxis_label']}]",
+                tickmode="array",
+                tickvals=ticks,
+                ticktext=ticks.apply(strfdelta, args=(mapping[workout]['display_fmt'],)),
+                fixedrange=True,
+                row=i, col=j
+            )
+            fig2.update_xaxes(
+                fixedrange=True,
+                row=i, col=j
+            )
 
         j += 1
         if j > 2:
@@ -339,5 +332,6 @@ if display_mode == 'Individual':
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
+
 # plot_workout(WORKOUTS[0])
-# plot_athlete(ATHLETES[0])
+# plot_athlete(ATHLETES[1])
