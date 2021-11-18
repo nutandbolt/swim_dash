@@ -278,25 +278,31 @@ def plot_athlete(athlete):
                                           hovertext=pd.Series(df_athlete[col].values.astype('int64')).
                                           apply(strfdelta, args=(mapping[workout]['display_fmt'],))), row=i, col=j)
 
-        ticks = pd.Series(range(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').min()
-                                - 5 * (10 ** 10),
-                                df_athlete.iloc[:, time_col].dropna(axis=1).values.astype('int64').max()
-                                + 5 * (10 ** 10), 4 * (10 ** 10)))
+        try:
+            ticks = pd.Series(range(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64')
+                                    .min() - 5 * (10 ** 10), df_athlete.iloc[:, time_col].dropna(axis=1).
+                                    values.astype('int64').max() + 5 * (10 ** 10), 4 * (10 ** 10)))
+        except ValueError:
+            ticks = pd.Series(range(0, 5*(10**10), 10**10))
 
         if mapping[workout]['plot'] == 'time':
-            fig2.update_yaxes(
+            try:
+                fig2.update_yaxes(
 
-                range=[df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').min()
-                       - 5 * (10 ** 10),
-                       df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').max()
-                       + 5 * (10 ** 10)],
-                title=f"Time [{mapping[workout]['yaxis_label']}]",
-                tickmode="array",
-                tickvals=ticks,
-                ticktext=ticks.apply(strfdelta, args=(mapping[workout]['display_fmt'],)),
-                fixedrange=True,
-                row=i, col=j
-            )
+                    range=[df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').min()
+                           - 5 * (10 ** 10),
+                           df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64').max()
+                           + 5 * (10 ** 10)],
+                    title=f"Time [{mapping[workout]['yaxis_label']}]",
+                    tickmode="array",
+                    tickvals=ticks,
+                    ticktext=ticks.apply(strfdelta, args=(mapping[workout]['display_fmt'],)),
+                    fixedrange=True,
+                    row=i, col=j
+                )
+            except ValueError:
+                fig2.update_yaxes(title=f"Time [{mapping[workout]['yaxis_label']}]")
+
             fig2.update_xaxes(
                 fixedrange=True,
                 row=i, col=j
@@ -334,4 +340,4 @@ else:
     plot_workout(option)
 
 # plot_workout(WORKOUTS[0])
-# plot_athlete(ATHLETES[1])
+# plot_athlete(ATHLETES[6])
