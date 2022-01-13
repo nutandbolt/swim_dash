@@ -14,6 +14,8 @@ import plotly.graph_objects as go
 import dateutil.parser as dparser
 import datetime
 import requests
+# import plotly.io as pio
+# pio.renderers.default = "browser"
 
 
 # utility build display string from nanoseconds
@@ -132,17 +134,28 @@ def plot_workout(option):
             time_col.append(time_column_index)
             if mapping[option]['plot'] == 'distance':
                 fmt = mapping[option]['fmt']
-                yaxis = [strptime(str(time), fmt) for time in input_df[col]]
+                try:
+                    input_df[[col+'_time', col+'_text', col+'_blank']] = \
+                        input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                    input_df[col+'_time'] = input_df[col+'_time'].apply(lambda x: x.strip())
+                except ValueError:
+                    input_df[col+'_time'] = input_df[col]
+
+                yaxis = [strptime(str(time), fmt) for time in input_df[col+'_time']]
                 yaxis_time = [pd.Timestamp(year=1970, month=1, day=1, hour=int(time.hour), minute=int(time.minute),
                                            second=int(time.second),
                                            microsecond=int(time.microsecond)) - pd.to_datetime("1-jan-1970").replace
                               (hour=0, minute=0, second=0, microsecond=0) if time is not None else None for time in
                               yaxis]
                 input_df[col] = yaxis_time
+
                 fig.add_trace(
                     go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df.iloc[:, time_column_index + 1],
-                           text=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
+                           customdata=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                            args=(mapping[option]['display_fmt'],)),
+                           texttemplate="%{customdata} - %{y}M",
+                           # text=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
+                           # args=(mapping[option]['display_fmt'],)),
                            textposition='auto',
                            hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                            args=(mapping[option]['display_fmt'],)),
@@ -154,15 +167,20 @@ def plot_workout(option):
                     yaxis={
                         "title": f"Distance [M]",
                     }
-                    # font=dict(
-                    #     family="Courier New, monospace",
-                    #     size=18,
-                    #     color="RebeccaPurple"
-                    # )
+
                 )
             else:
                 fmt = mapping[option]['fmt']
-                yaxis = [strptime(str(time), fmt) for time in input_df[col]]
+                try:
+                    input_df[[col+'_time', col+'_text', col+'_blank']] = \
+                        input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                    input_df[col + '_time'] = input_df[col+'_time'].fillna('None')
+                    input_df[col+'_time'] = input_df[col+'_time'].apply(lambda x: x.strip())
+                    cus_data = input_df[col+'_text']
+                except ValueError:
+                    input_df[col+'_time'] = input_df[col]
+                    cus_data=[]
+                yaxis = [strptime(str(time), fmt) for time in input_df[col+'_time']]
                 yaxis_time = [pd.Timestamp(year=1970, month=1, day=1, hour=int(time.hour), minute=int(time.minute),
                                            second=int(time.second),
                                            microsecond=int(time.microsecond)) - pd.to_datetime("1-jan-1970").replace
@@ -170,6 +188,9 @@ def plot_workout(option):
                               yaxis]
                 input_df[col] = yaxis_time
                 fig.add_trace(go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df[col],
+                                     customdata=cus_data,
+                                     text=cus_data,
+                                     textposition="inside",
                                      hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                                      args=(mapping[option]['display_fmt'],)),))
 
@@ -339,5 +360,5 @@ else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
 
-# plot_workout(WORKOUTS[0])
+# plot_workout(WORKOUTS[1])
 # plot_athlete(ATHLETES[6])
