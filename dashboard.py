@@ -228,7 +228,8 @@ def plot_athlete(athlete):
     # url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     # input_df = pd.read_csv(url).dropna(axis=1, how="all")
     # fig = go.Figure()
-    fig2 = make_subplots(rows=4, cols=2, start_cell="top-left", subplot_titles=WORKOUTS, horizontal_spacing=0.15)
+    fig2 = make_subplots(rows=4, cols=2, start_cell="top-left", subplot_titles=WORKOUTS,
+                         horizontal_spacing=0.15, vertical_spacing=0.1)
     i = 1
     j = 1
     for workout in WORKOUTS:
@@ -251,8 +252,8 @@ def plot_athlete(athlete):
             except (ValueError, IndexError):
                 pass
             else:
-                # x_vals.append(date)
-                # y_vals.append(df_athlete[col].values)
+                x_vals.append(date)
+
                 time_column_index = df_athlete.columns.get_loc(col)
                 time_col.append(time_column_index)
 
@@ -268,6 +269,7 @@ def plot_athlete(athlete):
                     pass
 
                 elif mapping[workout]['plot'] == 'distance':
+                    y_vals.append(df_athlete.iloc[:, time_column_index + 1].values)
                     fig2.add_trace(
                         go.Bar(name=str(date.date()), x=[str(date.strftime("%d %b %y"))],
                                y=df_athlete.iloc[:, time_column_index + 1],
@@ -291,13 +293,12 @@ def plot_athlete(athlete):
                     # fig2.update_xaxes(type='category')
 
                 elif mapping[workout]['plot'] == 'time':
-
+                    y_vals.append(df_athlete[col].values[0])
                     fig2.add_trace(go.Bar(name=str(date.date()), x=[str(date.strftime("%d %b %y"))], y=df_athlete[col],
                                           text=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
                                           args=(mapping[workout]['display_fmt'],)),
                                           textposition='auto',
-                                          hovertext=pd.Series(df_athlete[col].values.astype('int64')).
-                                          apply(strfdelta, args=(mapping[workout]['display_fmt'],))), row=i, col=j)
+                                          hovertemplate='<b>%{x}</b><br>'+'%{text}<br>'), row=i, col=j)
 
         try:
             ticks = pd.Series(range(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64')
@@ -335,7 +336,7 @@ def plot_athlete(athlete):
             i += 1
 
     fig2.update_layout(
-        height=600, width=1000,
+        height=1150, width=1000,
         showlegend=False,
         title_text=f'<b> SWIM DATA FOR  {athlete}</b>',
         title_font_color="black",
@@ -347,15 +348,17 @@ def plot_athlete(athlete):
 
 WORKOUTS = ['Pull Set 400 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M', 'Continuous Swim', 'Sprint 50 M',
             'Swim Broken 1000 M']
-ATHLETES = ['AJAY', 'ASHWIN', 'ARUN B', 'DIVYA N', 'MEGHANA', 'TEJAS', 'PRASHANTH', 'PRADEEP', 'MUKUND', 'MAHATHI',
-            'RAHUL']
+ATHLETES = ['AJAY', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL', 'NIKHIL',
+            'PRERANA']
+
+ATHLETES.sort()
 
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group'))
 
 if display_mode == 'Individual':
-    athlete = st.selectbox('Select Athlete', ATHLETES)
-    plot_athlete(athlete)
+    name = st.selectbox('Select Athlete', ATHLETES)
+    plot_athlete(name)
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
