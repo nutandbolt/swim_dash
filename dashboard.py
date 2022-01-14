@@ -148,6 +148,11 @@ def plot_workout(option):
                               (hour=0, minute=0, second=0, microsecond=0) if time is not None else None for time in
                               yaxis]
                 input_df[col] = yaxis_time
+                rank = np.zeros(len(input_df[col]))
+                i = 1
+                for index in input_df[col].sort_values().index:
+                    rank[index] = i
+                    i += 1
 
                 fig.add_trace(
                     go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df.iloc[:, time_column_index + 1],
@@ -188,13 +193,19 @@ def plot_workout(option):
                               (hour=0, minute=0, second=0, microsecond=0) if time is not None else None for time in
                               yaxis]
                 input_df[col] = yaxis_time
+                rank = np.zeros(len(input_df[col]))
+                i = 1
+                for index in input_df[col].sort_values().index:
+                    rank[index] = i
+                    i += 1
                 fig.add_trace(go.Bar(name=str(date.date()), x=input_df['NAME'], y=input_df[col],
-                                     customdata=cus_data,
+                                     customdata=rank,
                                      text=cus_data,
                                      textposition="inside",
                                      hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
                                      args=(mapping[option]['display_fmt'],)),
                                      hovertemplate='<b>%{x}</b><br>' + '%{hovertext}<br>'+'%{text}<br>'
+                                                   + '<b>Rank</b> = %{customdata}<br>'
                                      ))
 
     if mapping[option]['plot'] == 'time':
