@@ -177,9 +177,10 @@ def plot_workout(option):
                     input_df[col + '_time'] = input_df[col+'_time'].fillna('None')
                     input_df[col+'_time'] = input_df[col+'_time'].apply(lambda x: x.strip())
                     cus_data = input_df[col+'_text']
+                    cus_data = cus_data.replace(np.nan, ' ')
                 except ValueError:
                     input_df[col+'_time'] = input_df[col]
-                    cus_data=[]
+                    cus_data = [' ']*len(input_df[col])
                 yaxis = [strptime(str(time), fmt) for time in input_df[col+'_time']]
                 yaxis_time = [pd.Timestamp(year=1970, month=1, day=1, hour=int(time.hour), minute=int(time.minute),
                                            second=int(time.second),
@@ -192,7 +193,9 @@ def plot_workout(option):
                                      text=cus_data,
                                      textposition="inside",
                                      hovertext=pd.Series(input_df[col].values.astype('int64')).apply(strfdelta,
-                                     args=(mapping[option]['display_fmt'],)),))
+                                     args=(mapping[option]['display_fmt'],)),
+                                     hovertemplate='<b>%{x}</b><br>' + '%{hovertext}<br>'+'%{text}<br>'
+                                     ))
 
     if mapping[option]['plot'] == 'time':
         ticks = pd.Series(range((input_df.iloc[:, time_col].min()).view('int64').min()
