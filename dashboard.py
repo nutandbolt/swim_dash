@@ -13,6 +13,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import dateutil.parser as dparser
 import datetime
+from halloffame import hall_of_fame
 import requests
 # import plotly.io as pio
 # pio.renderers.default = "browser"
@@ -125,7 +126,7 @@ def plot_workout(option):
         try:
             temp = col.split(' ')[0]
             # distance = col.split(' ')[1]
-            date = dparser.parse(temp, dayfirst=True, fuzzy=True)
+            date = dparser.parse(temp, dayfirst=True, fuzzy=False)
         except (ValueError, IndexError):
             pass
 
@@ -262,7 +263,7 @@ def plot_athlete(athlete):
             try:
                 temp = col.split(' ')[0]
                 # distance = col.split(' ')[1]
-                date = dparser.parse(temp, dayfirst=True, fuzzy=True)
+                date = dparser.parse(temp, dayfirst=True, fuzzy=False)
             except (ValueError, IndexError):
                 pass
             else:
@@ -369,13 +370,25 @@ ATHLETES.sort()
 
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group'))
+hf_df = hall_of_fame(WORKOUTS).reset_index(drop=True)
+st.sidebar.image(r'./images/halloffame.gif')
+st.sidebar.table(hf_df)
+st.markdown(f'''
+    <style>
+        section[data-testid="stSidebar"] .css-ng1t4o {{width: 30rem;}}
+        section[data-testid="stSidebar"] .css-1d391kg {{width: 30rem;}}
+    </style>
+''', unsafe_allow_html=True)
 
 if display_mode == 'Individual':
     name = st.selectbox('Select Athlete', ATHLETES)
     plot_athlete(name)
+
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
+
+
 
 # plot_workout(WORKOUTS[1])
 # plot_athlete(ATHLETES[6])
