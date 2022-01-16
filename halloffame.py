@@ -6,7 +6,7 @@
 # https://stackoverflow.com/questions/68146256/convert-times-to-designated-time-format-and-apply-to-y-axis-of-plotly-graph
 import pandas as pd
 import streamlit as st
-import dateparser
+# import dateparser
 import numpy as np
 import csv
 import plotly
