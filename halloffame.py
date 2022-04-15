@@ -22,6 +22,14 @@ import requests
 sheet_id = '1MtzRZiacK93npe_i4AhJ5okC7RtKAo_3l2aWMdpHl7c'
 
 mapping = {
+    'Pull Set 700 M': {
+        'url': "Pull%20Broken_700M",
+        'fmt': "%M:%S.%f",
+        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
+        'plot': 'time',
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
+    },
     'Pull Set 400 M': {
         'url': "Pull%20Broken",
         'fmt': "%M:%S.%f",
@@ -37,7 +45,6 @@ mapping = {
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
         'header': 1
-
     },
     'Kick Set 200 M': {
         'url': "Kick%20Broken",
@@ -46,7 +53,6 @@ mapping = {
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
         'header': 2
-
     },
     'Time Trial 100 M': {
         'url': "Time%20Trial",
@@ -55,7 +61,6 @@ mapping = {
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
         'header': 2
-
     },
     'Continuous Swim': {
         'url': "Continuous%20Swim",
@@ -72,7 +77,6 @@ mapping = {
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
         'header': 1
-
     },
     'Sprint 50 M': {
         'url': "Others",
@@ -81,7 +85,6 @@ mapping = {
         'plot': 'time',
         'yaxis_label': "MM:SS:sss",
         'header': 1
-
     }
 }
 
@@ -183,8 +186,15 @@ def hall_of_fame(WORKOUTS):
             rank_time_dist = strfdelta(rank_df.min().min().value, mapping[workout]['display_fmt'])
             rank_date = list(rank_df[rank_df == rank_df.min().min()].dropna(axis=1, how='all').columns)
             rank_date = [str(dparser.parse(date.split(' ')[0], dayfirst=True, fuzzy=True).date()) for date in rank_date]
-            temp_df = pd.DataFrame({'NAME': rank_names, 'WORKOUT': workout,
-                                    'TIME/DIST': rank_time_dist, 'DATE': rank_date})
+            try:
+                temp_df = pd.DataFrame({'NAME': rank_names, 'WORKOUT': workout,
+                                        'TIME/DIST': rank_time_dist, 'DATE': rank_date})
+            except ValueError:
+                # Same person getting same time on 2 different date scenario results in dataframe with 2 entries for
+                # date while all other entries have length of 1
+                temp_df = pd.DataFrame({'NAME': rank_names, 'WORKOUT': workout,
+                                        'TIME/DIST': rank_time_dist, 'DATE': rank_date[-1]})
+
         hall_of_fame_df = pd.concat([hall_of_fame_df, temp_df])
     hall_of_fame_df['TIME/DIST'] = hall_of_fame_df['TIME/DIST'].astype('string')
 

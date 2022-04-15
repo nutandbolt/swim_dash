@@ -45,6 +45,14 @@ def strptime(s, time_fmt):
 sheet_id = '1MtzRZiacK93npe_i4AhJ5okC7RtKAo_3l2aWMdpHl7c'
 
 mapping = {
+    'Pull Set 700 M': {
+        'url': "Pull%20Broken_700M",
+        'fmt': "%M:%S.%f",
+        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
+        'plot': 'time',
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
+    },
     'Pull Set 400 M': {
         'url': "Pull%20Broken",
         'fmt': "%M:%S.%f",
@@ -255,7 +263,7 @@ def plot_athlete(athlete):
         df = pd.read_csv(url).dropna(axis=1, how="all")
         if 'NAME ' in df.columns:
             df.rename(columns={'NAME ': 'NAME'}, inplace=True)
-        df_athlete = df.loc[df['NAME'] == athlete, :]
+        df_athlete = df.loc[df['NAME'] == athlete, :].reset_index(drop=True)
         x_vals = []
         y_vals = []
         time_col = []
@@ -278,7 +286,8 @@ def plot_athlete(athlete):
                                            second=int(time.second), microsecond=int(time.microsecond))
                               - pd.to_datetime("1-jan-1970").replace(hour=0, minute=0, second=0, microsecond=0)
                               if time is not None else None for time in yaxis]
-                df_athlete.loc[:, col] = yaxis_time
+                df_athlete.loc[:, col] = yaxis_time[0]
+                # df_athlete.at[0, col] = yaxis_time[0]
 
                 if yaxis_time[0] is None:
                     pass
@@ -361,10 +370,10 @@ def plot_athlete(athlete):
     st.plotly_chart(fig2)
 
 
-WORKOUTS = ['Pull Set 400 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M', 'Continuous Swim', 'Sprint 50 M',
-            'Swim Broken 1000 M']
-ATHLETES = ['AJAY', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL', 'NIKHIL',
-            'PRERANA']
+WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M',
+            'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
+ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
+            'NIKHIL', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'PHANI K R']
 
 ATHLETES.sort()
 
@@ -380,15 +389,18 @@ st.markdown(f'''
     </style>
 ''', unsafe_allow_html=True)
 
+# name = st.selectbox('Select Athlete', ATHLETES)
+# plot_athlete(name)
+#
+# option = st.selectbox('Select workout', WORKOUTS)
+# plot_workout(option)
+
 if display_mode == 'Individual':
     name = st.selectbox('Select Athlete', ATHLETES)
     plot_athlete(name)
-
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
-
-
 
 # plot_workout(WORKOUTS[1])
 # plot_athlete(ATHLETES[6])
