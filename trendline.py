@@ -12,6 +12,10 @@ def fit_trendline(df_in):
     x = sm.add_constant(df_in['serial'])
     model = sm.OLS(df_in['values'], x).fit()
     df_in['bestfit'] = model.fittedvalues
-    return df_in
+    try:
+        slope = round(model.params[1]/1e9, 1)
+    except IndexError:
+        slope = 0
+    return df_in, slope
 
 
