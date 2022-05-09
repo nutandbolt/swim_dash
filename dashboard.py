@@ -11,9 +11,11 @@ import csv
 import plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.express as px
 import dateutil.parser as dparser
 import datetime
 from halloffame import hall_of_fame
+from trendline import fit_trendline
 import requests
 # import plotly.io as pio
 # pio.renderers.default = "browser"
@@ -303,6 +305,14 @@ def plot_athlete(athlete):
                                hovertext=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
                                args=(mapping[workout]['display_fmt'],))),
                         row=i, col=j)
+                    # help_fig = px.scatter(x=[str(date.strftime("%d %b %y"))],
+                    #                       y=df_athlete.iloc[:, time_column_index + 1], trendline="ols")
+                    # x_trend = help_fig["data"][0]['x']
+                    # y_trend = help_fig["data"][0]['y']
+                    #
+                    # fig2.add_trace(
+                    #     go.Scatter(x=x_trend, y=y_trend, name='trend'),
+                    #     row=i, col=j)
 
                     fig2.update_yaxes(
 
@@ -332,6 +342,21 @@ def plot_athlete(athlete):
             ticks = pd.Series(range(0, 5*(10**10), 10**10))
 
         if mapping[workout]['plot'] == 'time':
+            # col_values = list(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).values.astype('int64'))
+            col_values = pd.to_timedelta(df_athlete.iloc[:, time_col].values[0]).seconds*1e9
+            # col_names = pd.to_datetime(df_athlete.iloc[:, time_col].fillna(np.nan).dropna(axis=1).columns.values,
+            #                            dayfirst=
+            #                            True)
+            col_names = pd.to_datetime(x_vals, dayfirst=True)
+            df = pd.DataFrame({'time_stamp': col_names, 'values': col_values})
+            if not df['values'].isna().all():
+                df_trend = fit_trendline(df)
+                fig2.add_trace(go.Scatter(x=df_trend['time_stamp'].dt.strftime("%d %b %y"),
+                                          y=df_trend['bestfit'],
+                                          mode='lines',
+                                          name='Trend line',
+                                          line=dict(color='firebrick', width=1)
+                                          ), row=i, col=j)
             try:
                 fig2.update_yaxes(
 
