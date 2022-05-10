@@ -365,7 +365,8 @@ def plot_athlete(athlete, data_range):
                                               size=18,
                                               color="LightSeaGreen"
                                           ),
-                                          line=dict(color='firebrick', width=1)
+                                          line=dict(color='firebrick', width=1),
+                                          hovertemplate=f'{str(slope)} s<br>',
                                           ), row=i, col=j)
             try:
                 fig2.update_yaxes(
@@ -408,7 +409,7 @@ def plot_athlete(athlete, data_range):
 WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M',
             'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
 ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
-            'NIKHIL', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'PHANI K R']
+            'NIKHIL', 'PHANI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)']
 
 ATHLETES.sort()
 
