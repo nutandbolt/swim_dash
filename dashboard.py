@@ -245,7 +245,7 @@ def plot_workout(option):
     st.plotly_chart(fig)
 
 
-def plot_athlete(athlete):
+def plot_athlete(athlete, data_range):
     # # sheet_id = "1Sjy1nZ5pHgoayKb32b--74Mgtag_qewB5EF4trRKFPY"
     # sheet_id = "19dCvddKN-oeLdg-qb-p8SY1iqS2WxUJKJHCwomvJK5A"
     # sheet_name = mapping[option]['url']
@@ -266,6 +266,9 @@ def plot_athlete(athlete):
         if 'NAME ' in df.columns:
             df.rename(columns={'NAME ': 'NAME'}, inplace=True)
         df_athlete = df.loc[df['NAME'] == athlete, :].reset_index(drop=True)
+        if data_range != 'All':
+            df_athlete.dropna(axis=1, inplace=True)
+            df_athlete = df_athlete.iloc[:, -8:]
         x_vals = []
         y_vals = []
         time_col = []
@@ -350,12 +353,20 @@ def plot_athlete(athlete):
             col_names = pd.to_datetime(x_vals, dayfirst=True)
             df = pd.DataFrame({'time_stamp': col_names, 'values': col_values})
             if not df['values'].isna().all():
-                df_trend = fit_trendline(df)
+                df_trend, slope = fit_trendline(df)
                 fig2.add_trace(go.Scatter(x=df_trend['time_stamp'].dt.strftime("%d %b %y"),
                                           y=df_trend['bestfit'],
-                                          mode='lines',
+                                          mode='lines + text',
                                           name='Trend line',
-                                          line=dict(color='firebrick', width=1)
+                                          text=['             ' + str(slope) + ' s'],
+                                          textposition="top right",
+                                          textfont=dict(
+                                              family="sans serif",
+                                              size=18,
+                                              color="LightSeaGreen"
+                                          ),
+                                          line=dict(color='firebrick', width=1),
+                                          hovertemplate=f'{str(slope)} s<br>',
                                           ), row=i, col=j)
             try:
                 fig2.update_yaxes(
@@ -398,13 +409,23 @@ def plot_athlete(athlete):
 WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M',
             'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
 ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
-            'NIKHIL', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'PHANI K R']
+            'NIKHIL', 'PHANI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)']
 
 ATHLETES.sort()
 
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group'))
 hf_df = hall_of_fame(WORKOUTS).reset_index(drop=True)
+# CSS to inject contained in a string
+hide_table_row_index = """
+            <style>
+            tbody th {display:none}
+            .blank {display:none}
+            </style>
+            """
+# Inject CSS with Markdown
+st.markdown(hide_table_row_index, unsafe_allow_html=True)
+
 st.sidebar.image(r'./images/halloffame.gif')
 st.sidebar.table(hf_df)
 st.markdown(f'''
@@ -422,7 +443,8 @@ st.markdown(f'''
 
 if display_mode == 'Individual':
     name = st.selectbox('Select Athlete', ATHLETES)
-    plot_athlete(name)
+    data_select = st.radio('Data Range', ('All', 'Last 8 instances'))
+    plot_athlete(name, data_select)
 else:
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
