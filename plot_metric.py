@@ -206,7 +206,7 @@ def plot_metric():
         specs=[[{}, {}],
                [{}, {}],
                [{"colspan": 2}, None]],
-        subplot_titles=("PULL SCORE", "KICK SCORE", "ENDURANCE SCORE", "LBODY SCORE", "TOTAL SCORE"))
+        subplot_titles=("PULL SCORE IN WATTS", "KICK SCORE", "ENDURANCE SCORE", "LBODY SCORE", "TOTAL SCORE"))
     metric_df = round(metric_df.sort_values(by='total_score', ascending=False), 1)
     pull_values = metric_df.pull_score
     kick_values = metric_df.kick_score
@@ -214,30 +214,30 @@ def plot_metric():
     lbody_values = metric_df.lbody_score
     total_values = metric_df.total_score
 
-    fig.add_trace(go.Bar(x=pull_values.index,
-                         y=pull_values,
+    fig.add_trace(go.Bar(x=pull_values.sort_values(ascending=False).index,
+                         y=pull_values.sort_values(ascending=False),
                          name='PULL SCORE',
-                         text=pull_values,
+                         text=pull_values.sort_values(ascending=False),
                          textposition='auto',
                          marker_color=['orange']*len(pull_values)),
                   row=1, col=1)
-    fig.add_trace(go.Bar(x=kick_values.index,
-                         y=kick_values,
+    fig.add_trace(go.Bar(x=kick_values.sort_values(ascending=False).index,
+                         y=kick_values.sort_values(ascending=False),
                          name='KICK SCORE',
-                         text=kick_values,
+                         text=kick_values.sort_values(ascending=False),
                          textposition='auto',
                          marker_color=['cyan']*len(kick_values)),
                   row=1, col=2)
-    fig.add_trace(go.Bar(x=endurance_values.index,
-                         y=endurance_values,
-                         text=endurance_values,
+    fig.add_trace(go.Bar(x=endurance_values.sort_values(ascending=False).index,
+                         y=endurance_values.sort_values(ascending=False),
+                         text=endurance_values.sort_values(ascending=False),
                          textposition='auto',
                          marker_color=['hotpink']*len(endurance_values)),
                   row=2, col=1)
-    fig.add_trace(go.Bar(x=lbody_values.index,
-                         y=lbody_values,
+    fig.add_trace(go.Bar(x=lbody_values.sort_values(ascending=False).index,
+                         y=lbody_values.sort_values(ascending=False),
                          name='LBODY SCORE',
-                         text=lbody_values,
+                         text=lbody_values.sort_values(ascending=False),
                          textposition='auto',
                          marker_color=['lightgreen']*len(lbody_values)),
                   row=2, col=2)
@@ -264,7 +264,7 @@ def plot_metric():
     fig.update_layout(width=1000, height=800, showlegend=False, title_text="SWIM METRIC")
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightPink', nticks=10, fixedrange=True)
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='LightPink', fixedrange=True)
-    fig.update_yaxes(range=[0, 100], row=1, col=1, fixedrange=True)
+    fig.update_yaxes(range=[0, 50], row=1, col=1, fixedrange=True)
     st.plotly_chart(fig)
     st.image(r'./images/calc.jpg')
 
