@@ -46,8 +46,8 @@ mapping = {
         'yaxis_label': "MM:SS:sss",
         'header': 1
     },
-    'Kick Set 200 M': {
-        'url': "Kick%20Broken",
+    'Kick Set 100 M': {
+        'url': "Kick%20100M",
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',

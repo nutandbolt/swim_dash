@@ -16,6 +16,7 @@ import dateutil.parser as dparser
 import datetime
 from halloffame import hall_of_fame
 from trendline import fit_trendline
+from plot_metric import plot_metric
 import requests
 # import plotly.io as pio
 # pio.renderers.default = "browser"
@@ -72,8 +73,8 @@ mapping = {
         'header': 1
 
     },
-    'Kick Set 200 M': {
-        'url': "Kick%20Broken",
+    'Kick Set 100 M': {
+        'url': "Kick%20100M",
         'fmt': "%M:%S.%f",
         'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
         'plot': 'time',
@@ -354,6 +355,15 @@ def plot_athlete(athlete, data_range):
             df = pd.DataFrame({'time_stamp': col_names, 'values': col_values})
             if not df['values'].isna().all():
                 df_trend, slope = fit_trendline(df)
+                if workout == 'Time Trial 100 M':
+                    avg_tt_time = df['values'].iloc[-4:].mean()/1e9
+                if workout == 'Swim Broken 1000 M':
+                    avg_endurance_time = df['values'].iloc[-4:].mean()/1e9/10
+                if workout == 'Pull Set 700 M':
+                    avg_pull_time = df['values'].iloc[-4:].mean()/1e9/7
+                if workout == 'Kick Set 100 M':
+                    avg_kick_time = df['values'].iloc[-4:].mean()/1e9
+
                 fig2.add_trace(go.Scatter(x=df_trend['time_stamp'].dt.strftime("%d %b %y"),
                                           y=df_trend['bestfit'],
                                           mode='lines + text',
@@ -395,18 +405,55 @@ def plot_athlete(athlete, data_range):
             j = 1
             i += 1
 
+    CD = 1.07  # https://swimmingtechnology.com/measurement-of-the-active-drag-coefficient/
+    A = 0.0736  # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3590858/#FD5
+    try:
+        endurance_score = round(100 - (avg_endurance_time - avg_tt_time)/avg_tt_time * 100, 1)
+    except NameError:
+        endurance_score = 0
+    try:
+        lbody_pos_score = round(100 - (avg_endurance_time - avg_pull_time)/avg_pull_time * 100, 1)
+        if lbody_pos_score > 100:
+            lbody_pos_score = 100
+    except NameError:
+        lbody_pos_score = 0
+    try:
+        kick_score = round(100 - (avg_kick_time - avg_tt_time)/avg_tt_time*100, 1)
+    except NameError:
+        kick_score = 0
+    try:
+        pull_score = round(0.5*1000*CD*A*(100/avg_pull_time)**3, 1)  # In Watts
+    except NameError:
+        pull_score = 0
+    total_score = round(endurance_score + pull_score + lbody_pos_score + kick_score, 1)
     fig2.update_layout(
         height=1150, width=1000,
         showlegend=False,
         title_text=f'<b> SWIM DATA FOR  {athlete}</b>',
         title_font_color="black",
     )
+    score = [endurance_score, lbody_pos_score, kick_score, pull_score]
+    colors = ['khaki', 'firebrick', 'blue', 'green']
+    fig3 = go.Figure()
+    fig3.add_trace(go.Bar(x=['Endurance Score', 'LB pos Score', 'Kick Score', 'Pull Score'], y=score,
+                          text=[endurance_score, lbody_pos_score, kick_score, str(pull_score)+' W'],
+                          textposition='auto',
+                          marker_color=colors))
+    fig3.update_yaxes(range=[-20, 100], fixedrange=True)
+    fig3.update_layout(
+        height=600, width=600,
+        showlegend=False,
+        title_text=f'<b> SWIM SCORE FOR  {athlete} = {total_score}</b>',
+        title_font_color="black",
+    )
+    fig3.update_yaxes(title='<b> SWIM SCORE <b>')
 
     # fig2.show()
     st.plotly_chart(fig2)
+    st.plotly_chart(fig3)
 
 
-WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M',
+WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 100 M', 'Time Trial 100 M',
             'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
 ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
             'NIKHIL', 'PHANI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)']
@@ -414,7 +461,7 @@ ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHA
 ATHLETES.sort()
 
 st.title("SWIM FOR FITNESS DASHBOARD")
-display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group'))
+display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group', 'Swim Metric'))
 hf_df = hall_of_fame(WORKOUTS).reset_index(drop=True)
 # CSS to inject contained in a string
 hide_table_row_index = """
@@ -445,9 +492,8 @@ if display_mode == 'Individual':
     name = st.selectbox('Select Athlete', ATHLETES)
     data_select = st.radio('Data Range', ('All', 'Last 8 instances'))
     plot_athlete(name, data_select)
-else:
+elif display_mode == 'Group':
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
-
-# plot_workout(WORKOUTS[1])
-# plot_athlete(ATHLETES[6])
+elif display_mode == 'Swim Metric':
+    plot_metric()
