@@ -444,7 +444,6 @@ def plot_athlete(athlete, data_range):
         height=600, width=600,
         showlegend=False,
         title_text=f'<b> SWIM SCORE FOR  {athlete} = {total_score}</b>',
-        title_font_color="black",
     )
     fig3.update_yaxes(title='<b> SWIM SCORE <b>')
 
