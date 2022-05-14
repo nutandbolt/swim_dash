@@ -445,7 +445,9 @@ def plot_athlete(athlete, data_range):
         showlegend=False,
         title_text=f'<b> SWIM SCORE FOR  {athlete} = {total_score}</b>',
     )
-    fig3.update_yaxes(title='<b> SWIM SCORE <b>')
+    fig3.update_yaxes(title='<b> SWIM SCORE <b>',
+                      fixedrange=True)
+    fig3.update_xaxes(fixedrange=True)
 
     # fig2.show()
     st.plotly_chart(fig2)
