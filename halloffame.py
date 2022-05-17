@@ -14,79 +14,11 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import dateutil.parser as dparser
 import datetime
+from config import mapping
 import requests
 # import plotly.io as pio
 # pio.renderers.default = "browser"
-
-
 sheet_id = '1MtzRZiacK93npe_i4AhJ5okC7RtKAo_3l2aWMdpHl7c'
-
-mapping = {
-    'Pull Set 700 M': {
-        'url': "Pull%20Broken_700M",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 2
-    },
-    'Pull Set 400 M': {
-        'url': "Pull%20Broken",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 2
-    },
-    'Endurance 500 M': {
-        'url': "Endurance",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 1
-    },
-    'Kick Set 100 M': {
-        'url': "Kick%20100M",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 2
-    },
-    'Time Trial 100 M': {
-        'url': "Time%20Trial",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 2
-    },
-    'Continuous Swim': {
-        'url': "Continuous%20Swim",
-        'fmt': "%H:%M:%S",
-        'display_fmt': "{hours:02d}:{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'distance',
-        'yaxis_label': "H:MM:SS",
-        'header': 1
-    },
-    'Swim Broken 1000 M': {
-        'url': "Swim%20Broken",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 1
-    },
-    'Sprint 50 M': {
-        'url': "Others",
-        'fmt': "%M:%S.%f",
-        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
-        'plot': 'time',
-        'yaxis_label': "MM:SS:sss",
-        'header': 1
-    }
-}
 
 
 def hall_of_fame(WORKOUTS):
@@ -199,22 +131,3 @@ def hall_of_fame(WORKOUTS):
     hall_of_fame_df['TIME/DIST'] = hall_of_fame_df['TIME/DIST'].astype('string')
 
     return hall_of_fame_df
-
-#
-# WORKOUTS = ['Pull Set 400 M', 'Endurance 500 M', 'Kick Set 200 M', 'Time Trial 100 M', 'Continuous Swim', 'Sprint 50 M',
-#             'Swim Broken 1000 M']
-# ATHLETES = ['AJAY', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL', 'NIKHIL',
-#             'PRERANA']
-#
-# ATHLETES.sort()
-#
-# st.title("SWIM FOR FITNESS DASHBOARD TESTING")
-#
-# st.sidebar.image(r'./images/halloffame.gif')
-# st.sidebar.table(hall_of_fame().reset_index(drop=True))
-# st.markdown(f'''
-#     <style>
-#         section[data-testid="stSidebar"] .css-ng1t4o {{width: 30rem;}}
-#         section[data-testid="stSidebar"] .css-1d391kg {{width: 30rem;}}
-#     </style>
-# ''', unsafe_allow_html=True)
