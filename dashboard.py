@@ -416,6 +416,9 @@ if display_mode == 'Individual':
     name = st.selectbox('Select Athlete', ATHLETES)
     data_select = st.radio('Data Range', ('All', 'Last 8 instances'))
     plot_athlete(name, data_select)
+    pb_df = hall_of_fame(WORKOUTS, name)
+    st.sidebar.image(r'./images/PB.jpg')
+    st.sidebar.table(pb_df)
 elif display_mode == 'Group':
     option = st.selectbox('Select workout', WORKOUTS)
     plot_workout(option)
