@@ -21,7 +21,7 @@ import requests
 sheet_id = '1MtzRZiacK93npe_i4AhJ5okC7RtKAo_3l2aWMdpHl7c'
 
 
-def hall_of_fame(WORKOUTS):
+def hall_of_fame(WORKOUTS, athlete=None):
     # utility build display string from nanoseconds
     def strfdelta(t, fmt="{minutes:02d}:{seconds:02d}.{milli:03d}"):
         d = {}
@@ -42,8 +42,8 @@ def hall_of_fame(WORKOUTS):
             time_var = datetime.datetime.strptime(str(s), time_fmt).time()
             time_stamp = pd.Timestamp(year=1970, month=1, day=1, hour=int(time_var.hour), minute=int(time_var.minute),
                                       second=int(time_var.second),
-                                      microsecond=int(time_var.microsecond)) - pd.to_datetime("1-jan-1970"). \
-                             replace(hour=0, minute=0, second=0, microsecond=0)
+                                      microsecond=int(time_var.microsecond)) - pd.to_datetime("1-jan-1970").\
+                replace(hour=0, minute=0, second=0, microsecond=0)
 
             return time_stamp
         except ValueError:
@@ -62,6 +62,7 @@ def hall_of_fame(WORKOUTS):
         time_col = []
         if 'NAME ' in input_df.columns:
             input_df.rename(columns={'NAME ': 'NAME'}, inplace=True)
+
         for col in input_df.columns:
 
             try:
@@ -100,6 +101,8 @@ def hall_of_fame(WORKOUTS):
                 time_dist_col.append(col+1)
             rank_df = input_df.iloc[:, time_dist_col]
             rank_df = rank_df.set_index(input_df['NAME'])
+            if athlete:
+                rank_df = rank_df[rank_df.index == athlete]
             dist_name = [col for col in rank_df.columns if 'DISTANCE' in col]
             rank_time_dist = rank_df.loc[:, dist_name].max().max()
             rank_names = list(rank_df[rank_df == rank_time_dist].dropna(how='all').index)
@@ -110,8 +113,15 @@ def hall_of_fame(WORKOUTS):
                                     'TIME/DIST': rank_time_dist, 'DATE': rank_date})
         else:
             timings = [input_df.columns.get_loc(col) for col in input_df.columns if 'time' in col]
-            rank_df = input_df.iloc[1::, timings].applymap(func=outer(fmt)).copy()
-            rank_df = rank_df.set_index(input_df['NAME'][1::])
+            input_df.drop(input_df.index[input_df['NAME'].isna()], inplace=True)
+            rank_df = input_df.iloc[:, timings].applymap(func=outer(fmt)).copy()
+            # rank_df = input_df.iloc[1::, timings].applymap(func=outer(fmt)).copy()
+            # if athlete:
+            rank_df = rank_df.set_index(input_df['NAME'])
+            if athlete:
+                rank_df = rank_df[rank_df.index == athlete]
+            # else:
+            #     rank_df = rank_df.set_index(input_df['NAME'][1::])
             rank_names = list(rank_df[rank_df == rank_df.min().min()].dropna(how='all').index)
         # if mapping[workout]['plot'] == 'distance':
 
