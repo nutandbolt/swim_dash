@@ -140,4 +140,4 @@ def hall_of_fame(WORKOUTS, athlete=None):
         hall_of_fame_df = pd.concat([hall_of_fame_df, temp_df])
     hall_of_fame_df['TIME/DIST'] = hall_of_fame_df['TIME/DIST'].astype('string')
 
-    return hall_of_fame_df
+    return hall_of_fame_df.copy()
