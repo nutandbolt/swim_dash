@@ -391,6 +391,7 @@ ATHLETES.sort()
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group', 'Swim Metric'))
 hf_df = hall_of_fame(WORKOUTS).reset_index(drop=True)
+# hf_df = pd.DataFrame()
 # CSS to inject contained in a string
 hide_table_row_index = """
             <style>
@@ -421,6 +422,7 @@ if display_mode == 'Individual':
     data_select = st.radio('Data Range', ('All', 'Last 8 instances'))
     plot_athlete(name, data_select)
     pb_df = hall_of_fame(WORKOUTS, name)
+    # pb_df = pd.DataFrame()
     st.sidebar.image(r'./images/PB.jpg')
     st.sidebar.table(pb_df)
 elif display_mode == 'Group':
