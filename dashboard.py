@@ -187,12 +187,16 @@ def plot_athlete(athlete, data_range):
         header_row = mapping[workout]['header']
         url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
         df = pd.read_csv(url).dropna(axis=1, how="all")
+
         if 'NAME ' in df.columns:
             df.rename(columns={'NAME ': 'NAME'}, inplace=True)
+
         df_athlete = df.loc[df['NAME'] == athlete, :].reset_index(drop=True)
+
         if data_range != 'All':
             df_athlete.dropna(axis=1, inplace=True)
             df_athlete = df_athlete.iloc[:, -8:]
+
         x_vals = []
         y_vals = []
         time_col = []
@@ -380,13 +384,14 @@ def plot_athlete(athlete, data_range):
 WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 100 M', 'Time Trial 100 M',
             'Time Trial 200 M', 'Time Trial 300 M', 'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
 ATHLETES = ['AJAY', 'ACHAL', 'ASHWIN', 'ARUN B', 'SHREYAS', 'DIVYA N', 'MEGHANA', 'VINEETH', 'PRADEEP', 'RAHUL',
-            'NIKHIL', 'SHRUTHI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'DILIP']
+            'NIKHIL', 'SHRUTHI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'DILIP'
 
 ATHLETES.sort()
 
 st.title("SWIM FOR FITNESS DASHBOARD")
 display_mode = st.selectbox('Select Display Mode', ('Individual', 'Group', 'Swim Metric'))
 hf_df = hall_of_fame(WORKOUTS).reset_index(drop=True)
+# hf_df = pd.DataFrame()
 # CSS to inject contained in a string
 hide_table_row_index = """
             <style>
@@ -417,6 +422,7 @@ if display_mode == 'Individual':
     data_select = st.radio('Data Range', ('All', 'Last 8 instances'))
     plot_athlete(name, data_select)
     pb_df = hall_of_fame(WORKOUTS, name)
+    # pb_df = pd.DataFrame()
     st.sidebar.image(r'./images/PB.jpg')
     st.sidebar.table(pb_df)
 elif display_mode == 'Group':

@@ -78,19 +78,25 @@ def hall_of_fame(WORKOUTS, athlete=None):
                 if mapping[workout]['plot'] == 'distance':
                     fmt = mapping[workout]['fmt']
                     try:
-                        input_df[[col + '_time', col + '_text', col + '_blank']] = \
-                            input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                        # input_df[[col + '_time', col + '_text', col + '_blank']] = \
+                        #     input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                        input_df[col + '_time'] = \
+                            input_df[col].str.split(r'[{(\[})\]]', expand=True)[0]
+
                         input_df[col + '_time'] = input_df[col + '_time'].apply(lambda x: x.strip())
-                    except ValueError:
+                    except (ValueError, AttributeError):
                         input_df[col + '_time'] = input_df[col]
                 else:
                     fmt = mapping[workout]['fmt']
                     try:
-                        input_df[[col+'_time', col+'_text', col+'_blank']] = \
-                            input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                        # input_df[[col+'_time', col+'_text', col+'_blank']] = \
+                        #     input_df[col].str.split(r'[{(\[})\]]', expand=True)
+                        input_df[col + '_time'] = \
+                            input_df[col].str.split(r'[{(\[})\]]', expand=True)[0]
+
                         input_df[col + '_time'] = input_df[col+'_time'].fillna('None')
                         input_df[col+'_time'] = input_df[col+'_time'].apply(lambda x: x.strip())
-                    except ValueError:
+                    except (ValueError, AttributeError):
                         input_df[col+'_time'] = input_df[col]
 
         fmt = mapping[workout]['fmt']
@@ -143,4 +149,4 @@ def hall_of_fame(WORKOUTS, athlete=None):
         hall_of_fame_df = pd.concat([hall_of_fame_df, temp_df])
     hall_of_fame_df['TIME/DIST'] = hall_of_fame_df['TIME/DIST'].astype('string')
 
-    return hall_of_fame_df
+    return hall_of_fame_df.copy()
