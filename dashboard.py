@@ -382,9 +382,9 @@ def plot_athlete(athlete, data_range):
 
 
 WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 100 M', 'Time Trial 100 M',
-            'Time Trial 200 M', 'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
-ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
-            'NIKHIL', 'PHANI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)']
+            'Time Trial 200 M', 'Time Trial 300 M', 'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
+ATHLETES = ['AJAY', 'ACHAL', 'ASHWIN', 'ARUN B', 'SHREYAS', 'DIVYA N', 'MEGHANA', 'VINEETH', 'PRADEEP', 'RAHUL',
+            'NIKHIL', 'SHRUTHI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'DILIP'
 
 ATHLETES.sort()
 
