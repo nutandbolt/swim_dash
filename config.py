@@ -42,6 +42,24 @@ mapping = {
         'header': 2
 
     },
+    'Time Trial 200 M': {
+        'url': "Time%20Trial%20200M",
+        'fmt': "%M:%S.%f",
+        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
+        'plot': 'time',
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
+
+    },
+    'Time Trial 300 M': {
+        'url': "Time%20Trial%20300M",
+        'fmt': "%M:%S.%f",
+        'display_fmt': "{minutes:02d}:{seconds:02d}.{milli:03d}",
+        'plot': 'time',
+        'yaxis_label': "MM:SS:sss",
+        'header': 2
+
+    },
     'Continuous Swim': {
         'url': "Continuous%20Swim",
         'fmt': "%H:%M:%S",

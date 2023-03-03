@@ -177,7 +177,7 @@ def plot_athlete(athlete, data_range):
     # url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     # input_df = pd.read_csv(url).dropna(axis=1, how="all")
     # fig = go.Figure()
-    fig2 = make_subplots(rows=4, cols=2, start_cell="top-left", subplot_titles=WORKOUTS,
+    fig2 = make_subplots(rows=5, cols=2, start_cell="top-left", subplot_titles=WORKOUTS,
                          horizontal_spacing=0.15, vertical_spacing=0.1)
     i = 1
     j = 1
@@ -378,9 +378,9 @@ def plot_athlete(athlete, data_range):
 
 
 WORKOUTS = ['Pull Set 400 M', 'Pull Set 700 M', 'Endurance 500 M', 'Kick Set 100 M', 'Time Trial 100 M',
-            'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
-ATHLETES = ['AJAY', 'ANURADHA', 'ASHWIN', 'ARUN B', 'DHRITHI', 'DIVYA N', 'MEGHANA', 'PRASHANTH', 'PRADEEP', 'RAHUL',
-            'NIKHIL', 'PHANI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)']
+            'Time Trial 200 M', 'Time Trial 300 M', 'Continuous Swim', 'Sprint 50 M', 'Swim Broken 1000 M']
+ATHLETES = ['AJAY', 'ACHAL', 'ASHWIN', 'ARUN B', 'SHREYAS', 'DIVYA N', 'MEGHANA', 'VINEETH', 'PRADEEP', 'RAHUL',
+            'NIKHIL', 'SHRUTHI', 'PRERANA', 'SHREYA', 'SRAVAN', 'NIKHIL(OG)', 'DILIP']
 
 ATHLETES.sort()
 

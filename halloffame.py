@@ -103,14 +103,17 @@ def hall_of_fame(WORKOUTS, athlete=None):
             rank_df = rank_df.set_index(input_df['NAME'])
             if athlete:
                 rank_df = rank_df[rank_df.index == athlete]
-            dist_name = [col for col in rank_df.columns if 'DISTANCE' in col]
-            rank_time_dist = rank_df.loc[:, dist_name].max().max()
-            rank_names = list(rank_df[rank_df == rank_time_dist].dropna(how='all').index)
-            find_date_frm_dist = rank_df[rank_df == rank_time_dist].dropna(axis=1, how='all').columns[0]
-            date_col = rank_df.columns.get_loc(find_date_frm_dist)-1
-            rank_date = str(dparser.parse(rank_df.columns[date_col].split(' ')[0], dayfirst=True, fuzzy=True).date())
-            temp_df = pd.DataFrame({'NAME': rank_names, 'WORKOUT': workout,
-                                    'TIME/DIST': rank_time_dist, 'DATE': rank_date})
+            if rank_df.dropna().empty:
+                temp_df = pd.DataFrame(columns=['WORKOUT', 'NAME', 'TIME/DIST', 'DATE'])
+            else:
+                dist_name = [col for col in rank_df.columns if 'DISTANCE' in col]
+                rank_time_dist = rank_df.loc[:, dist_name].max().max()
+                rank_names = list(rank_df[rank_df == rank_time_dist].dropna(how='all').index)
+                find_date_frm_dist = rank_df[rank_df == rank_time_dist].dropna(axis=1, how='all').columns[0]
+                date_col = rank_df.columns.get_loc(find_date_frm_dist)-1
+                rank_date = str(dparser.parse(rank_df.columns[date_col].split(' ')[0], dayfirst=True, fuzzy=True).date())
+                temp_df = pd.DataFrame({'NAME': rank_names, 'WORKOUT': workout,
+                                        'TIME/DIST': rank_time_dist, 'DATE': rank_date})
         else:
             timings = [input_df.columns.get_loc(col) for col in input_df.columns if 'time' in col]
             input_df.drop(input_df.index[input_df['NAME'].isna()], inplace=True)
