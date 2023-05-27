@@ -193,6 +193,13 @@ def plot_athlete(athlete, data_range):
 
         df_athlete = df.loc[df['NAME'] == athlete, :].reset_index(drop=True)
 
+        if df_athlete.iloc[:, 2::].dropna(axis=1).empty:
+            j += 1
+            if j > 2:
+                j = 1
+                i += 1
+            continue
+
         if data_range != 'All':
             df_athlete.dropna(axis=1, inplace=True)
             df_athlete = df_athlete.iloc[:, -8:]
@@ -219,6 +226,7 @@ def plot_athlete(athlete, data_range):
                                            second=int(time.second), microsecond=int(time.microsecond))
                               - pd.to_datetime("1-jan-1970").replace(hour=0, minute=0, second=0, microsecond=0)
                               if time is not None else None for time in yaxis]
+
                 df_athlete.loc[:, col] = yaxis_time[0]
                 # df_athlete.at[0, col] = yaxis_time[0]
 
