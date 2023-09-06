@@ -268,7 +268,7 @@ def plot_athlete(athlete, data_range):
                 elif mapping[workout]['plot'] == 'time':
                     y_vals.append(df_athlete[col].values[0])
                     fig2.add_trace(go.Bar(name=str(date.date()), x=[str(date.strftime("%d %b %y"))], y=df_athlete[col],
-                                          text=(pd.Series(df_athlete[col].values).dt.seconds*1000000000).apply(strfdelta,
+                                          text=pd.Series(df_athlete[col].values.astype('int64')).apply(strfdelta,
                                           args=(mapping[workout]['display_fmt'],)),
                                           textposition='auto',
                                           hovertemplate='<b>%{x}</b><br>'+'%{text}<br>'), row=i, col=j)
